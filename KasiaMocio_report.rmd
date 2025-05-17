@@ -1,0 +1,83 @@
+---
+title: "RR8 assignment"
+author: "Katarzyna Mocio"
+date: "15/05/2025"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+# Game of Thrones
+
+*Game of Thrones* is roughly based on the storylines of the *A Song of Ice and Fire* book series by George R. R. Martin, set in the fictional Seven Kingdoms of Westeros and the continent of Essos.  The series follows several simultaneous plotlines. The first story arc follows a war of succession among competing claimants for control of the Iron Throne of the Seven Kingdoms, with other noble families fighting for independence from the throne. The second concerns the actions of the exiled scion to reclaim the throne; the third chronicles the threat of the impending winter, as well as the legendary creatures and fierce peoples of the North.
+
+<p align="center">
+  <img src="GameOfThrones.jpg" width="70%">
+</p>
+
+```{r}
+library(rvest)
+library(dplyr)
+
+url <- "https://en.wikipedia.org/wiki/Game_of_Thrones"
+page <- read_html(url)
+tables <- page %>% html_table(fill = TRUE)
+episodes_table <- tables[[4]]
+episodes_table <- episodes_table %>% select(-ncol(.))
+
+knitr::kable(
+  episodes_table,
+  format = "html",
+  table.attr = 'border="1"',
+  caption = "Game of Thrones adaptation and season schedule"
+)
+
+
+```
+
+## R Code Chunk with Plot
+```{r}
+library(rvest)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+
+# Load page and table
+url <- "https://en.wikipedia.org/wiki/Game_of_Thrones"
+page <- read_html(url)
+tables <- page %>% html_table(fill = TRUE)
+episodes_table <- tables[[6]]
+
+# Extract critics score and count of reviews from Rotten Tomatoes column
+episodes_table_clean <- episodes_table %>%
+  mutate(
+    Season = as.numeric(Season),
+    Critics_score = str_extract(`Rotten Tomatoes`, "\\d+(?=%)") %>% as.numeric(),
+    Count_of_reviews = str_extract(`Rotten Tomatoes`, "(?<=\\()\\d+(?= reviews)") %>% as.numeric()
+  )
+
+# Create plot with bars for Critics_score, line for Count_of_reviews, and labels above bars
+ggplot(episodes_table_clean, aes(x = Season)) +
+  geom_col(aes(y = Critics_score), fill = "steelblue") + 
+  geom_text(aes(y = Critics_score, label = paste0(Critics_score, "%")), vjust = -0.5, color = "black", size = 3) +
+  geom_line(aes(y = Count_of_reviews / max(Count_of_reviews) * 100), color = "pink", size = 1) +
+  geom_point(aes(y = Count_of_reviews / max(Count_of_reviews) * 100), color = "pink", size = 2) +
+  scale_x_continuous(breaks = episodes_table_clean$Season) +
+  scale_y_continuous(
+    name = "Critic Score (%)",
+    sec.axis = sec_axis(~ . * max(episodes_table_clean$Count_of_reviews) / 100, name = "Count of Reviews")
+  ) +
+  labs(
+    title = "Average Critic Scores and Number of Reviews by Game of Thrones Season",
+    x = "Season"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.title.y.left = element_text(color = "steelblue"),
+    axis.title.y.right = element_text(color = "pink")
+  )
+
+
+```
+
