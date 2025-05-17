@@ -10,13 +10,18 @@ output:
 
 # Game of Thrones
 
-*Game of Thrones* is roughly based on the storylines of the *A Song of Ice and Fire* book series by George R. R. Martin, set in the fictional Seven Kingdoms of Westeros and the continent of Essos.  The series follows several simultaneous plotlines. The first story arc follows a war of succession among competing claimants for control of the Iron Throne of the Seven Kingdoms, with other noble families fighting for independence from the throne. The second concerns the actions of the exiled scion to reclaim the throne; the third chronicles the threat of the impending winter, as well as the legendary creatures and fierce peoples of the North.
+*Game of Thrones* is roughly based on the storylines of the *A Song of Ice and Fire* book series by **George R. R. Martin**, set in the fictional Seven Kingdoms of Westeros and the continent of Essos.  
+
+The series follows several simultaneous plotlines. The first story arc follows a war of succession among competing claimants for control of the Iron Throne of the Seven Kingdoms, with other noble families fighting for independence from the throne. The second concerns the actions of the exiled scion to reclaim the throne; the third chronicles the threat of the impending winter, as well as the legendary creatures and fierce peoples of the North.
 
 <p align="center">
   <img src="GameOfThrones.jpg" width="70%">
 </p>
 
-```{r}
+*Game of Thrones* was considered a **ratings success** for HBO throughout all eight seasons. The show premiere was watched by **2.2 million**, and the first season averaged **2.5 million viewers per episode**. For its second season, the series had an average gross audience of **11.6 million viewers**. The third season was seen by **14.2 million viewers**, making *Game of Thrones* the second-most-viewed HBO series (after *The Sopranos*). HBO said that *Game of Thrones*’ average gross audience of **18.4 million viewers** (later adjusted to 18.6 million) had passed *The Sopranos* for the viewership record. The season five episode "**The House of Black and White**" was simulcasted in **173 countries**, becoming the "**largest TV drama telecast**" according to Guinness World Records.
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(rvest)
 library(dplyr)
 
@@ -36,20 +41,24 @@ knitr::kable(
 
 ```
 
-## R Code Chunk with Plot
-```{r}
+  
+*Game of Thrones*, particularly the first six seasons, received **critical acclaim**, although the series's frequent use of *nudity* and *violence* has been criticized.  
+
+The series has an overall rating of **89%** on *Rotten Tomatoes* and a score of **86** on *Metacritic*. Some critics and publications have called the show among the **best HBO series of all time**.
+
+
+## Reviews plot
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(rvest)
 library(dplyr)
 library(ggplot2)
 library(stringr)
 
-# Load page and table
 url <- "https://en.wikipedia.org/wiki/Game_of_Thrones"
 page <- read_html(url)
 tables <- page %>% html_table(fill = TRUE)
 episodes_table <- tables[[6]]
-
-# Extract critics score and count of reviews from Rotten Tomatoes column
+ 
 episodes_table_clean <- episodes_table %>%
   mutate(
     Season = as.numeric(Season),
@@ -57,7 +66,7 @@ episodes_table_clean <- episodes_table %>%
     Count_of_reviews = str_extract(`Rotten Tomatoes`, "(?<=\\()\\d+(?= reviews)") %>% as.numeric()
   )
 
-# Create plot with bars for Critics_score, line for Count_of_reviews, and labels above bars
+ 
 ggplot(episodes_table_clean, aes(x = Season)) +
   geom_col(aes(y = Critics_score), fill = "steelblue") + 
   geom_text(aes(y = Critics_score, label = paste0(Critics_score, "%")), vjust = -0.5, color = "black", size = 3) +
